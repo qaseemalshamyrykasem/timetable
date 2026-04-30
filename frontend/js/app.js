@@ -28,23 +28,37 @@ let pendingConfirmCallback = null;
 async function api(endpoint, options = {}) {
   const url = `${API_BASE}${endpoint}`;
   const config = {
-    headers: { 'Content-Type': 'application/json' },
     credentials: 'same-origin',
     ...options
   };
+  /* لا نرسل Content-Type تلقائياً للطلبات GET */
+  if (options.method && options.method !== 'GET' && options.body) {
+    config.headers = { 'Content-Type': 'application/json', ...options.headers };
+  }
   try {
     const response = await fetch(url, config);
-    const data = await response.json();
-
     if (response.status === 401) {
       showLoginPage();
       return null;
     }
-
+    const text = await response.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (parseErr) {
+      console.error('JSON parse error for', endpoint, ':', parseErr.message);
+      console.error('Response text:', text.substring(0, 200));
+      showToast('خطأ في استجابة الخادم.', 'error');
+      return null;
+    }
+    if (!response.ok && response.status >= 400) {
+      showToast(data.error || 'حدث خطأ في الخادم.', 'error');
+      return null;
+    }
     data._status = response.status;
     return data;
   } catch (err) {
-    console.error('API Error:', err);
+    console.error('API Error:', endpoint, err);
     showToast('خطأ في الاتصال بالخادم. يرجى المحاولة مرة أخرى.', 'error');
     return null;
   }

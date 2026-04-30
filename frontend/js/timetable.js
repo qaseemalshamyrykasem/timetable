@@ -38,60 +38,107 @@ const SUBJECT_COLORS = [
 let timetableData = [];
 let availableClasses = [];
 
-/** تحميل قائمة الشعب */
+/** تحميل قائمة الشعب وملء القائمة المنسدلة */
 async function loadClassSelect() {
-  const classes = await api('/timetable/classes');
-  if (!classes) return;
-  availableClasses = classes;
-
   const select = document.getElementById('timetable-class-select');
-  const currentVal = select.value;
-  select.innerHTML = '<option value="">اختر الشعبة</option>';
-  classes.forEach(cls => {
-    select.innerHTML += `<option value="${escapeAttr(cls)}">${escapeHtml(cls)}</option>`;
-  });
-  select.value = currentVal;
+  if (!select) return;
 
-  if (currentVal) {
-    loadTimetable();
+  const currentVal = select.value;
+
+  try {
+    const classes = await api('/timetable/classes');
+    if (!classes || !Array.isArray(classes)) {
+      console.warn('loadClassSelect: لم يتم العثور على شعب');
+      select.innerHTML = '<option value="">لا توجد شعب</option>';
+      return;
+    }
+
+    availableClasses = classes;
+    select.innerHTML = '<option value="">-- اختر الشعبة --</option>';
+
+    classes.forEach(cls => {
+      const opt = document.createElement('option');
+      opt.value = cls;
+      opt.textContent = cls;
+      select.appendChild(opt);
+    });
+
+    /* استعادة التحديد السابق أو تحديد أول شعبة تلقائياً */
+    if (currentVal && classes.includes(currentVal)) {
+      select.value = currentVal;
+      loadTimetable();
+    } else if (classes.length > 0) {
+      /* إذا لم يكن هناك تحديد سابق ولا توجد بيانات جدول، لا نحدد تلقائياً */
+      select.value = '';
+      showEmptyClassPrompt();
+    }
+  } catch (err) {
+    console.error('loadClassSelect error:', err);
+    select.innerHTML = '<option value="">خطأ في التحميل</option>';
   }
+}
+
+/** عرض رسالة عند عدم اختيار شعبة */
+function showEmptyClassPrompt() {
+  const container = document.getElementById('timetable-container');
+  if (!container) return;
+  container.innerHTML = `
+    <div class="empty-state">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <h3>اختر الشعبة</h3>
+      <p>اختر شعبة من القائمة لعرض أو إنشاء جدولها الأسبوعي.</p>
+    </div>`;
+  hideExportButtons();
+}
+
+/** إخفاء أزرار التصدير */
+function hideExportButtons() {
+  const btnExcel = document.getElementById('btn-export-excel');
+  const btnPdf = document.getElementById('btn-export-pdf');
+  if (btnExcel) btnExcel.style.display = 'none';
+  if (btnPdf) btnPdf.style.display = 'none';
 }
 
 /** تحميل وعرض الجدول للشعبة المحددة */
 async function loadTimetable() {
-  const className = document.getElementById('timetable-class-select').value;
+  const select = document.getElementById('timetable-class-select');
+  const className = select ? select.value : '';
   const container = document.getElementById('timetable-container');
 
   if (!className) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <h3>اختر الشعبة</h3>
-        <p>اختر شعبة من القائمة لعرض أو إنشاء جدولها الأسبوعي.</p>
-      </div>`;
+    showEmptyClassPrompt();
     return;
   }
 
-  const data = await api(`/timetable?class_name=${encodeURIComponent(className)}`);
-  if (!data) return;
+  try {
+    const data = await api(`/timetable?class_name=${encodeURIComponent(className)}`);
+    if (!data) {
+      showEmptyClassPrompt();
+      return;
+    }
 
-  timetableData = data;
+    timetableData = Array.isArray(data) ? data : [];
 
-  if (data.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <h3>لا يوجد جدول بعد</h3>
-        <p>اضغط على "إنشاء" لتوليد الجدول الأسبوعي لشعبة ${escapeHtml(className)}.</p>
-      </div>`;
-    return;
+    if (timetableData.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <h3>لا يوجد جدول بعد</h3>
+          <p>اضغط على "إنشاء" لتوليد الجدول الأسبوعي لشعبة ${escapeHtml(className)}.</p>
+        </div>`;
+      hideExportButtons();
+      return;
+    }
+
+    renderTimetableGrid(timetableData, className);
+
+    /* إظهار أزرار التصدير عند وجود بيانات */
+    document.getElementById('btn-export-excel').style.display = 'inline-flex';
+    document.getElementById('btn-export-pdf').style.display = 'inline-flex';
+  } catch (err) {
+    console.error('loadTimetable error:', err);
+    showEmptyClassPrompt();
   }
-
-  renderTimetableGrid(data, className);
-
-  /* إظهار أزرار التصدير عند وجود بيانات */
-  document.getElementById('btn-export-excel').style.display = 'inline-flex';
-  document.getElementById('btn-export-pdf').style.display = 'inline-flex';
 }
 
 /** عرض الجدول كشبكة */
@@ -186,8 +233,19 @@ async function generateTimetable() {
           warningEl.style.display = 'none';
         }
 
-        loadTimetable();
-        loadClassSelect();
+        /* إعادة تحميل الشعب ثم عرض الجدول */
+        await loadClassSelect();
+
+        /* إذا تم إنشاء جدول لشعبة محددة، اعرضها */
+        if (className) {
+          document.getElementById('timetable-class-select').value = className;
+          loadTimetable();
+        } else if (availableClasses.length > 0) {
+          /* إذا تم إنشاء لجميع الشعب، حدد الأولى واعرض جدولها */
+          const select = document.getElementById('timetable-class-select');
+          select.value = availableClasses[0];
+          loadTimetable();
+        }
       }
     }
   );
@@ -328,13 +386,7 @@ function exportToExcel() {
 
   showToast('جارٍ تجهيز ملف Excel...', 'info');
 
-  /* فتح رابط التحميل في نافذة جديدة أو تحميل مباشر */
-  const link = document.createElement('a');
-  link.href = `/api/export/excel?class_name=${encodeURIComponent(className)}`;
-  link.download = `جدول_${className}.xlsx`;
-
-  /* استخدام fetch للحفاظ على الجلسة */
-  fetch(link.href, { credentials: 'same-origin' })
+  fetch(`/api/export/excel?class_name=${encodeURIComponent(className)}`, { credentials: 'same-origin' })
     .then(response => {
       if (!response.ok) throw new Error('فشل التصدير');
       return response.blob();
@@ -368,8 +420,5 @@ function exportToPDF() {
   }
 
   showToast('جارٍ فتح نافذة التصدير...', 'info');
-
-  /* فتح صفحة التصدير في نافذة جديدة */
-  const url = `/api/export/pdf?class_name=${encodeURIComponent(className)}`;
-  window.open(url, '_blank');
+  window.open(`/api/export/pdf?class_name=${encodeURIComponent(className)}`, '_blank');
 }
