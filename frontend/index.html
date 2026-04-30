@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام إدارة الجدول المدرسي</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏫</text></svg>">
+</head>
+<body>
+
+  <!-- ===== صفحة تسجيل الدخول ===== -->
+  <div id="login-page" class="login-page">
+    <div class="login-container">
+      <div class="login-header">
+        <div class="login-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          </svg>
+        </div>
+        <h1>الجدول المدرسي</h1>
+        <p>نظام الإدارة المتكامل</p>
+      </div>
+      <form id="login-form" class="login-form">
+        <div class="form-group">
+          <label for="username">اسم المستخدم</label>
+          <input type="text" id="username" name="username" placeholder="أدخل اسم المستخدم" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="password">كلمة المرور</label>
+          <input type="password" id="password" name="password" placeholder="أدخل كلمة المرور" required autocomplete="current-password">
+        </div>
+        <div id="login-error" class="error-msg" style="display:none;"></div>
+        <button type="submit" class="btn btn-primary btn-block">تسجيل الدخول</button>
+      </form>
+      <div class="login-footer">
+        <p>تجريبي: admin / admin123</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== لوحة التحكم ===== -->
+  <div id="dashboard" class="dashboard" style="display:none;">
+    <!-- الشريط الجانبي -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        <span>الجدول المدرسي</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-page="dashboard-overview">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span>لوحة التحكم</span>
+        </a>
+        <a href="#" class="nav-item" data-page="students">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>الطلاب</span>
+        </a>
+        <a href="#" class="nav-item" data-page="teachers">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>المعلمون</span>
+        </a>
+        <a href="#" class="nav-item" data-page="subjects">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span>المواد الدراسية</span>
+        </a>
+        <a href="#" class="nav-item" data-page="classrooms">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>الفصول الدراسية</span>
+        </a>
+        <a href="#" class="nav-item" data-page="timetable">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>الجدول الأسبوعي</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="user-avatar">م</div>
+          <div class="user-details">
+            <span class="user-name" id="user-display-name">المدير</span>
+            <span class="user-role">مدير النظام</span>
+          </div>
+        </div>
+        <button id="logout-btn" class="btn-logout" title="تسجيل الخروج">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="main-content">
+      <!-- الشريط العلوي -->
+      <header class="topbar">
+        <button id="sidebar-toggle" class="sidebar-toggle">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <h2 id="page-title">لوحة التحكم</h2>
+        <div class="topbar-actions">
+          <span class="topbar-date" id="current-date"></span>
+        </div>
+      </header>
+
+      <!-- حاوية المحتوى -->
+      <div class="content-area">
+
+        <!-- ===== لوحة المعلومات ===== -->
+        <div id="page-dashboard-overview" class="page active">
+          <div class="stats-grid">
+            <div class="stat-card stat-students">
+              <div class="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div class="stat-info">
+                <h3 id="stat-students">0</h3>
+                <p>إجمالي الطلاب</p>
+              </div>
+            </div>
+            <div class="stat-card stat-teachers">
+              <div class="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div class="stat-info">
+                <h3 id="stat-teachers">0</h3>
+                <p>المعلمون</p>
+              </div>
+            </div>
+            <div class="stat-card stat-subjects">
+              <div class="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              </div>
+              <div class="stat-info">
+                <h3 id="stat-subjects">0</h3>
+                <p>المواد الدراسية</p>
+              </div>
+            </div>
+            <div class="stat-card stat-classrooms">
+              <div class="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </div>
+              <div class="stat-info">
+                <h3 id="stat-classrooms">0</h3>
+                <p>الفصول الدراسية</p>
+              </div>
+            </div>
+          </div>
+          <div class="dashboard-row">
+            <div class="card">
+              <div class="card-header"><h3>إجراءات سريعة</h3></div>
+              <div class="card-body">
+                <div class="quick-actions">
+                  <button class="btn btn-outline" onclick="navigateTo('students')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    إضافة طالب
+                  </button>
+                  <button class="btn btn-outline" onclick="navigateTo('teachers')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    إضافة معلم
+                  </button>
+                  <button class="btn btn-primary" onclick="navigateTo('timetable')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    إنشاء الجدول
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h3>آخر النشاطات</h3></div>
+              <div class="card-body">
+                <div id="recent-activity" class="activity-list">
+                  <p class="text-muted">لا توجد نشاطات حديثة</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== صفحة الطلاب ===== -->
+        <div id="page-students" class="page">
+          <div class="page-header">
+            <h3>إدارة الطلاب</h3>
+            <button class="btn btn-primary" onclick="openStudentModal()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              إضافة طالب
+            </button>
+          </div>
+          <div class="filter-bar">
+            <select id="student-class-filter" class="form-select" onchange="loadStudents()">
+              <option value="">جميع الشعب</option>
+            </select>
+            <input type="text" id="student-search" class="form-input" placeholder="البحث عن طالب..." oninput="loadStudents()">
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>الاسم</th>
+                  <th>الرقم الدراسي</th>
+                  <th>الشعبة</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="students-table-body">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ===== صفحة المعلمين ===== -->
+        <div id="page-teachers" class="page">
+          <div class="page-header">
+            <h3>إدارة المعلمين</h3>
+            <button class="btn btn-primary" onclick="openTeacherModal()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              إضافة معلم
+            </button>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>الاسم</th>
+                  <th>التخصص</th>
+                  <th>المواد</th>
+                  <th>الأيام المتاحة</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="teachers-table-body">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ===== صفحة المواد ===== -->
+        <div id="page-subjects" class="page">
+          <div class="page-header">
+            <h3>إدارة المواد الدراسية</h3>
+            <button class="btn btn-primary" onclick="openSubjectModal()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              إضافة مادة
+            </button>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>اسم المادة</th>
+                  <th>المعلم</th>
+                  <th>الحصص أسبوعياً</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="subjects-table-body">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ===== صفحة الفصول ===== -->
+        <div id="page-classrooms" class="page">
+          <div class="page-header">
+            <h3>إدارة الفصول الدراسية</h3>
+            <button class="btn btn-primary" onclick="openClassroomModal()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              إضافة فصل
+            </button>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>اسم الفصل</th>
+                  <th>السعة</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="classrooms-table-body">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ===== صفحة الجدول الأسبوعي ===== -->
+        <div id="page-timetable" class="page">
+          <div class="page-header">
+            <h3>الجدول الأسبوعي</h3>
+            <div class="timetable-actions">
+              <select id="timetable-class-select" class="form-select" onchange="loadTimetable()">
+                <option value="">اختر الشعبة</option>
+              </select>
+              <button class="btn btn-primary" onclick="generateTimetable()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                إنشاء
+              </button>
+              <button class="btn btn-outline" onclick="resetTimetable()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                إعادة تعيين
+              </button>
+              <button class="btn btn-success" onclick="exportToExcel()" id="btn-export-excel" style="display:none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                تصدير Excel
+              </button>
+              <button class="btn btn-outline" onclick="exportToPDF()" id="btn-export-pdf" style="display:none; color: #ef4444; border-color: #fca5a5;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>
+                تصدير PDF
+              </button>
+            </div>
+          </div>
+          <div id="timetable-container" class="timetable-container">
+            <div class="empty-state">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <h3>لم يتم إنشاء جدول بعد</h3>
+              <p>اختر شعبة ثم اضغط على "إنشاء" لتوليد الجدول الأسبوعي.</p>
+            </div>
+          </div>
+          <div id="timetable-warnings" class="warnings-container" style="display:none;"></div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ===== النافذة المنبثقة ===== -->
+  <div id="modal-overlay" class="modal-overlay" style="display:none;">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <h3 id="modal-title">عنوان النافذة</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== نافذة التأكيد ===== -->
+  <div id="confirm-overlay" class="modal-overlay" style="display:none;">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h3>تأكيد الإجراء</h3>
+      </div>
+      <div class="modal-body">
+        <p id="confirm-message">هل أنت متأكد؟</p>
+        <div class="modal-actions">
+          <button class="btn btn-outline" onclick="closeConfirm()">إلغاء</button>
+          <button class="btn btn-danger" id="confirm-btn" onclick="confirmAction()">تأكيد</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== إشعارات التنبيه ===== -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- السكريبتات -->
+  <script src="/js/app.js"></script>
+  <script src="/js/students.js"></script>
+  <script src="/js/teachers.js"></script>
+  <script src="/js/subjects.js"></script>
+  <script src="/js/classrooms.js"></script>
+  <script src="/js/timetable.js"></script>
+</body>
+</html>
